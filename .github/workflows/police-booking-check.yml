@@ -3,7 +3,8 @@ name: Police booking - find earliest date
 on:
   workflow_dispatch:
   schedule:
-    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+    # use arbitrary minute to avoid hitting API at the same time as other users
+    - cron: "3 9-22 * * *"
 
 permissions:
   contents: read
