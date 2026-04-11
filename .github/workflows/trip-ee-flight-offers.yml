@@ -1,0 +1,27 @@
+name: Trip.ee flight offers
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Wednesday 17:02 Europe/Tallinn (5:02 PM). Last param is day of week (3 is Wednesday).
+    - cron: "2 17 * * 3"
+      timezone: "Europe/Tallinn"
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Fetch offers and notify Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 scripts/fetch_trip_ee_flight_offers.py

@@ -8,9 +8,14 @@ import sys
 import urllib.request
 from datetime import date
 from pathlib import Path
-from dotenv import load_dotenv
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from dotenv import load_dotenv
+from utils.telegram import require_telegram_env, send_msg_to_telegram
+
 load_dotenv(_REPO_ROOT / ".env")
 load_dotenv(Path.cwd() / ".env", override=True)
 
@@ -52,24 +57,10 @@ def fetch_earliest_possible_booking_date(url: str) -> tuple[date | None, list[da
     return earliest, parsed
 
 
-def send_msg_to_telegram(token: str, chat_id: str, text: str) -> None:
-    api = f"https://api.telegram.org/bot{token}/sendMessage"
-    body = json.dumps({"chat_id": chat_id, "text": text}).encode()
-    req = urllib.request.Request(
-        api,
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=30, context=_SSL_CTX) as resp:
-        resp.read()
-
-
 def main() -> int:
     url = os.environ.get("POLICE_BOOKING_AVAILABLE_TIMES_URL")
-    token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-    assert url and token and chat_id, ( "POLICE_BOOKING_AVAILABLE_TIMES_URL, TELEGRAM_BOT_TOKEN, and TELEGRAM_CHAT_ID must be set.")
+    assert url, "POLICE_BOOKING_AVAILABLE_TIMES_URL must be set."
+    token, chat_id = require_telegram_env()
 
     cutoff_s = os.environ.get("EARLIEST_ACCEPTABLE_DATE", DEFAULT_CUTOFF)
     cutoff = date.fromisoformat(cutoff_s)
