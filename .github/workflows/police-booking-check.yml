@@ -1,0 +1,26 @@
+name: Police booking - find earliest date
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Check dates and notify Telegram
+        env:
+          POLICE_BOOKING_AVAILABLE_TIMES_URL: ${{ secrets.POLICE_BOOKING_AVAILABLE_TIMES_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 scripts/check_police_booking_dates.py
