@@ -22,7 +22,7 @@ load_dotenv(Path.cwd() / ".env", override=True)
 # No certificate verification
 _SSL_CTX = ssl._create_unverified_context()
 
-DEFAULT_CUTOFF = "2026-06-18"
+DEFAULT_CUTOFF = "2026-06-05"
 
 def _parse_schedule_dates_payload(raw: str) -> list[date]:
     data = json.loads(raw)
